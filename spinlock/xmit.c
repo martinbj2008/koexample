@@ -5,11 +5,24 @@
 #include <linux/if_vlan.h>
 #include <linux/spinlock.h>
 #include <linux/jiffies.h>
+#include <linux/cpumask.h>
+#include <linux/cpufreq.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Junwei Zhang");
 MODULE_DESCRIPTION("A Simple to test spinlock performance");
 
+static int set_affinity(int cpu)
+{
+	struct cpumask mask;
+
+	cpumask_empty(&mask);
+	cpumask_set_cpu(cpu, &mask);
+	set_cpus_allowed_ptr(current, &mask);
+
+	printk(KERN_DEBUG "Run on cpu:%d\n", smp_processor_id());
+	return 0;
+}
 
 static int __init test_init(void)
 {
@@ -21,8 +34,10 @@ static int __init test_init(void)
 	struct timespec start, end;
 	uint32_t jiff_s, jiff_e;
 	unsigned long long tsc_s, tsc_e;
+	int cpu = 0;
 
 	spin_lock_init(&lock);
+	set_affinity(cpu);
 	local_irq_save(flags);
 
 	getnstimeofday(&start);
