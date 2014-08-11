@@ -10,35 +10,43 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Junwei Zhang");
 MODULE_DESCRIPTION("A Simple to test spinlock performance");
 
+
 static int __init test_init(void)
 {
-	u64 i = 1024*1024;
-	//unsigned long start, end;
 	spinlock_t  lock;
+	u64 count = 1024*1024*50;
+	u64 i;
+	//unsigned long start, end;
 	unsigned long flags;
 	struct timespec start, end;
 	uint32_t jiff_s, jiff_e;
+	unsigned long long tsc_s, tsc_e;
 
 	spin_lock_init(&lock);
 	local_irq_save(flags);
 
 	getnstimeofday(&start);
 	jiff_s = jiffies;
-	while(i-->0) {
+	tsc_s = native_read_tsc();
+	for(i=0; i<count; i++) {
 		spin_lock(&lock);
 		spin_unlock(&lock);
 	}
+	tsc_e = native_read_tsc();
 	jiff_e = jiffies;
 	getnstimeofday(&end);
 
 	local_irq_restore(flags);
 
-	printk(KERN_DEBUG "start: %ld,%ld\nend: %ld,%ld\noffset:%ld, %ld\n",
-		start.tv_sec, start.tv_nsec, end.tv_sec, end.tv_nsec,
-		end.tv_sec - start.tv_sec,
+	printk(KERN_DEBUG "start: %ld,%ld\n", start.tv_sec, start.tv_nsec);
+	printk(KERN_DEBUG "end: %ld,%ld\n", end.tv_sec, end.tv_nsec);
+	printk(KERN_DEBUG "offset:%ld, %ld\n", end.tv_sec - start.tv_sec,
 		(end.tv_sec - start.tv_sec)*1000000 + (end.tv_nsec - start.tv_nsec)/1000);
+
 	printk(KERN_DEBUG "HZ:%u\n", HZ);
 	printk(KERN_DEBUG "Jiffies %u,%u, %u\n", jiff_e, jiff_s, jiffies_to_msecs(jiff_e - jiff_s));
+
+	printk(KERN_DEBUG "TSC %llu,%llu, delta %llu\n", tsc_s, tsc_e, (tsc_e - tsc_s) >> 20);
 	return 0;
 }
 

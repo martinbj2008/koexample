@@ -1,0 +1,4 @@
+Some cpu use dynamic freq to save power,
+MUST check with following command and get "performance".
+cat /sys/devices/system/cpu/cpu$i/cpufreq/scaling_governor
+i is the cpu id(0...)
