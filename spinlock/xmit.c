@@ -24,6 +24,15 @@ static int set_affinity(int cpu)
 	return 0;
 }
 
+static int show_freq(int cpu)
+{
+	unsigned int freq;
+	freq = cpufreq_quick_get(cpu);
+	printk(KERN_DEBUG "cpu%d freq:%u\n", cpu, freq);
+
+	return 0;
+}
+
 static int __init test_init(void)
 {
 	spinlock_t  lock;
@@ -38,6 +47,7 @@ static int __init test_init(void)
 
 	spin_lock_init(&lock);
 	set_affinity(cpu);
+	show_freq(cpu);
 	local_irq_save(flags);
 
 	getnstimeofday(&start);
@@ -52,6 +62,7 @@ static int __init test_init(void)
 	getnstimeofday(&end);
 
 	local_irq_restore(flags);
+	show_freq(cpu);
 
 	printk(KERN_DEBUG "start: %ld,%ld\n", start.tv_sec, start.tv_nsec);
 	printk(KERN_DEBUG "end: %ld,%ld\n", end.tv_sec, end.tv_nsec);
