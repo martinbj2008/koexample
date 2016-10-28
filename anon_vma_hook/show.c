@@ -63,7 +63,8 @@ void __j_unlink_anon_vmas(struct vm_area_struct *vma)
 		root = lock_anon_vma_root(root, anon_vma);
                 if (anonvma_external_refcount(anon_vma)) {
 			//Only one avc
-			if (anon_vma->head.next && anon_vma->head.next == anon_vma->head.prev) {
+			if (anon_vma->head.next == anon_vma->head.prev 
+				&& anon_vma->head.next == &avc->same_anon_vma) {
 				found = 1;
 				break;
 			}
