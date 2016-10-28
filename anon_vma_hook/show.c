@@ -90,7 +90,7 @@ static int __init kprobe_init(void)
 
 	ret = register_jprobe(&unlink_anon_vmas_jp);
 	if (ret == 0)
-		printk(KERN_INFO "Register tcp hook OK\n");
+		printk(KERN_INFO "Register Jprobe for unlink_anon_vmas OK\n");
 
 	return ret;
 }
@@ -98,7 +98,7 @@ static int __init kprobe_init(void)
 static void __exit kprobe_exit(void)
 {
 	unregister_jprobe(&unlink_anon_vmas_jp);
-	printk(KERN_INFO "Unregister tcp hook OK\n");
+	printk(KERN_INFO "Unregister Jprobe for unlink_anon_vmas OK\n");
 }
 
 module_init(kprobe_init)
