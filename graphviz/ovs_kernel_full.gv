@@ -1,0 +1,303 @@
+digraph g {
+graph [
+rankdir = "LR"
+bgcolor = "white:lightblue"
+style="filled"
+gradientangle = 270];
+node [
+fontsize = "16"
+shape = "ellipse"
+style="filled"
+gradientangle=90
+];
+edge [
+];
+#--------------------------------------------------------------------------------------------------------------------------------
+
+## Part 1: vport instance
+
+"vport1" [
+  label = "<f0> vport/vport1 \
+    | <f1> struct net_device *dev; \
+    | <f2> struct datapath *dp; \
+    | <f3> struct vport_portids __rcu *upcall_portids; \
+    | <f4> u16 port_no; \
+    | <f5> struct hlist_n1ode hash_node; \
+    | <f6> struct hlist_node dp_hash_node; \
+    | <f7> const struct vport_ops *ops; \
+    | <f8> struct list_head detach_list; \
+    | <f9> struct rcu_head rcu; \
+  "
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "gray"
+];
+
+"vport2" [
+  label = "<f0> vport/vport2 \
+    | <f1> struct net_device *dev; \
+    | <f2> struct datapath *dp; \
+    | <f3> struct vport_portids __rcu *upcall_portids; \
+    | <f4> u16 port_no; \
+    | <f5> struct hlist_n1ode hash_node; \
+    | <f6> struct hlist_node dp_hash_node; \
+    | <f7> const struct vport_ops *ops; \
+    | <f8> struct list_head detach_list; \
+    | <f9> struct rcu_head rcu; \
+  "
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "gray"
+];
+
+"vport3" [
+  label = "<f0> vport/vport3 \
+    | <f1> struct net_device *dev; \
+    | <f2> struct datapath *dp; \
+    | <f3> struct vport_portids __rcu *upcall_portids; \
+    | <f4> u16 port_no; \
+    | <f5> struct hlist_n1ode hash_node; \
+    | <f6> struct hlist_node dp_hash_node; \
+    | <f7> const struct vport_ops *ops; \
+    | <f8> struct list_head detach_list; \
+    | <f9> struct rcu_head rcu; \
+  "
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "blue:green"
+];
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 2: dev_table
+"dev_table" [
+  label = "<f0>dev_table; \
+    | \
+    | <f1> . \
+    | <f2> . \
+    | <f3> . \
+    | \
+    | \
+    | <f4> . \
+    | <f5> . \
+    | \
+    | \
+  "
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "lightblue"
+  pos = "0,0!"
+];
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 3: VPORT &dev_table link list
+"dev_table":f2:e-> "vport1":f5 -> "vport3":f5 [
+id = 100, dir="both",color="blue"
+];
+
+"dev_table":f5:e-> "vport2":f5:w[
+id = 103, dir="both",color="blue"
+];
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 4: VPort OPS
+
+"ovs_netdev_vport_ops" [
+  label = "<f0> ovs_netdev_vport_ops \
+    | <f1>type           = OVS_VPORT_TYPE_NETDEV \
+    | <f2> .create         = netdev_create,\
+    | <f3> .destroy        = netdev_destroy,\
+    | <f4> \
+    | <f5> .send           = dev_queue_xmit,\
+    | <f6> struct list_head list; \
+    "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "yellow:blue"
+  decorate="true"
+];
+
+
+"ovs_vxlan_netdev_vport_ops" [
+  label = "<f0> ovs_vxlan_netdev_vport_ops; \
+    | <f1> .type           = OVS_VPORT_TYPE_VXLAN \
+    | <f2> .create         = vxlan_create,\
+    | <f3> .destroy        = ovs_netdev_tunnel_destroy,\
+    | <f4> .get_options    = vxlan_get_options,\
+    | <f5> .send           = dev_queue_xmit,\
+    | <f6> struct list_head list; \
+    "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "yellow:blue"
+];
+
+"ovs_internal_vport_ops" [
+  label = "<f0> ovs_internal_vport_ops; \
+    | <f1> .type           = OVS_VPORT_TYPE_INTERNAL \
+    | <f2> .create         = internal_dev_create,\
+    | <f3> .destroy        = internal_dev_destroy,\
+    | <f4>  \
+    | <f5> .send           = internal_dev_recv,\
+    | <f6> struct list_head list; \
+    "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "yellow:blue"
+];
+
+"ovs_gre_vport_ops" [
+  label = "<f0> ovs_gre_vport_ops; \
+    | <f1> .type           = OVS_VPORT_TYPE_GRE \
+    | <f2> .create         = gre_create,\
+    | <f3> .destroy        = ovs_netdev_tunnel_destroy,\
+    | <f4>  \
+    | <f5> .send           = dev_queue_xmit,\
+    | <f6> struct list_head list; \
+    "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "yellow:blue"
+];
+
+"ovs_geneve_vport_ops" [
+  label = "<f0> ovs_geneve_vport_ops; \
+    | <f1> .type           = OVS_VPORT_TYPE_GENEVE, \
+    | <f2> .create         = geneve_create,\
+    | <f3> .destroy        = ovs_netdev_tunnel_destroy,\
+    | <f4> .get_options    = geneve_get_options,\
+    | <f5> .send           = dev_queue_xmit,\
+    | <f6> struct list_head list; \
+    "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "yellow:blue"
+];
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 5: VPort OPS list
+
+"vport_ops_list" [
+  label = "<f0> static LIST_HEAD(vport_ops_list); \
+  "
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "yellow"
+  decorate="true"
+];
+
+"vport_ops_list" -> "ovs_internal_vport_ops":f6[
+id = 501, dir="both",color="yellow"
+];
+
+"ovs_internal_vport_ops":f6 -> "ovs_vxlan_netdev_vport_ops":f6[
+id = 502, dir="both",color="yellow"
+];
+
+"ovs_vxlan_netdev_vport_ops":f6 -> "ovs_netdev_vport_ops":f6[
+id = 503, dir="both",color="yellow"
+];
+
+"ovs_netdev_vport_ops":f6 -> "ovs_gre_vport_ops":f6[
+id = 504, dir="both",color="yellow"
+];
+
+"ovs_gre_vport_ops":f6 -> "ovs_geneve_vport_ops":f6[
+id = 505, dir="both",color="yellow"
+];
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 6: vport and its corresponding vport_ops
+
+"vport2":f7 -> "ovs_internal_vport_ops" [
+id = 600, color="red"
+];
+
+"vport3":f7 -> "ovs_netdev_vport_ops" [
+id = 601, color="red"
+];
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 7 Datapath instance
+"ovs_system" [
+  label = "<f0> datapath/ovs_system \
+    | <f1> struct rcu_head rcu; \
+    | <f2> struct flow_table table; \
+    | <f3> struct hlist_head *ports; \
+    | struct dp_stats_percpu __percpu *stats_percpu; \
+    | possible_net_t net;|u32 user_features; \
+    | 32 max_headroom; \
+    | struct hlist_head *meters;"
+  pos = "0,0!"
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "yellow:blue"
+];
+
+"user_dp" [
+  label = "<f0> datapath \
+    | <f1> struct rcu_head rcu; \
+    | <f2> struct flow_table table; \
+    | <f3> struct hlist_head *ports; \
+    | struct dp_stats_percpu __percpu *stats_percpu; \
+    | possible_net_t net;|u32 user_features; \
+    | 32 max_headroom; \
+    | struct hlist_head *meters;"
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "yellow:blue"
+];
+
+"ovs_net" [
+  label = "<f0> ovs_net/per net instance \
+    | <f1> struct list_head dps; \
+    | <f2> ... \
+    | bool xt_label;
+  "
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "lightgray"
+]
+
+
+"ovs_net":f1 -> "ovs_system":f1 -> "user_dp":f1 [
+id = 700, dir="both"
+];
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 8: vport & hlist_node & datapath
+"hlist_head" [
+  label = "<f0>hlist_head ports \
+    | \
+    | <f1> . \
+    | <f2> . \
+    | <f3> . \
+    | \
+    | <f4> . \
+    | <f5> . \
+    | \
+    | \
+  "
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "green"
+  pos = "0,0!"
+];
+
+"ovs_system":f3 -> "hlist_head"[
+id = 801, dir="both", color="green"
+];
+
+
+"hlist_head":f1 -> "vport1":f6[
+id = 810, dir="both", color="green"
+];
+
+"hlist_head":f3 -> "vport2":f6 -> "vport3":f6[
+id = 811, dir="both", color="green"
+];
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+}
