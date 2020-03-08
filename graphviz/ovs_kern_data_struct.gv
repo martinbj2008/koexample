@@ -1,7 +1,7 @@
 digraph g {
 graph [
 rankdir = "LR"
-bgcolor = "white:lightblue"
+bgcolor = "lightblue"
 style="filled"
 gradientangle = 270];
 node [
@@ -64,7 +64,7 @@ edge [
   "
   shape = "record"
   gradientangle="90"
-  fillcolor = "blue:green"
+  fillcolor = "royalblue"
 ];
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -85,7 +85,6 @@ edge [
   shape = "record"
   gradientangle="90"
   fillcolor = "lightblue"
-  pos = "0,0!"
 ];
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -187,24 +186,25 @@ id = 103, dir="both",color="blue"
 ];
 
 "vport_ops_list" -> "ovs_internal_vport_ops":f6[
-id = 501, dir="both",color="yellow"
+    id = 501, dir="both",color="yellow"
 ];
 
-"ovs_internal_vport_ops":f6 -> "ovs_vxlan_netdev_vport_ops":f6[
-id = 502, dir="both",color="yellow"
-];
-
-"ovs_vxlan_netdev_vport_ops":f6 -> "ovs_netdev_vport_ops":f6[
-id = 503, dir="both",color="yellow"
+"ovs_internal_vport_ops":f6 -> "ovs_netdev_vport_ops":f6[
+    id = 504, dir="both",color="yellow"
 ];
 
 "ovs_netdev_vport_ops":f6 -> "ovs_gre_vport_ops":f6[
-id = 504, dir="both",color="yellow"
+    id = 504, dir="both",color="yellow"
 ];
 
 "ovs_gre_vport_ops":f6 -> "ovs_geneve_vport_ops":f6[
-id = 505, dir="both",color="yellow"
+    id = 505, dir="both",color="yellow"
 ];
+
+"ovs_geneve_vport_ops":f6 -> "ovs_vxlan_netdev_vport_ops":f6[
+    id = 502, dir="both",color="yellow"
+];
+# no effect;#rank=same; vport_ops_list, ovs_gre_vport_ops, ovs_geneve_vport_ops, ovs_vxlan_netdev_vport_ops, ovs_netdev_vport_ops, ovs_internal_vport_ops
 #--------------------------------------------------------------------------------------------------------------------------------
 
 ### Part 6: vport and its corresponding vport_ops
@@ -229,10 +229,9 @@ id = 601, color="red"
     | possible_net_t net;|u32 user_features; \
     | 32 max_headroom; \
     | struct hlist_head *meters;"
-  pos = "0,0!"
   shape = "record"
   gradientangle="90"
-  fillcolor = "yellow:blue"
+  fillcolor = "gray"
 ];
 
 "user_dp" [
@@ -281,23 +280,212 @@ id = 700, dir="both"
   "
   shape = "record"
   gradientangle="90"
-  fillcolor = "green"
-  pos = "0,0!"
+  fillcolor = "springgreen"
 ];
 
 "ovs_system":f3 -> "hlist_head"[
-id = 801, dir="both", color="green"
+id = 801, dir="both", color="forestgreen"
 ];
 
 
 "hlist_head":f1 -> "vport1":f6[
-id = 810, dir="both", color="green"
+id = 810, dir="both", color="forestgreen"
 ];
 
 "hlist_head":f3 -> "vport2":f6 -> "vport3":f6[
-id = 811, dir="both", color="green"
+id = 811, dir="both", color="forestgreen"
 ];
 #--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 9: flow_table in datapath
+
+"table_instance" [
+  label = "<f0>table_instance \
+    | <f1> struct hlist_head *buckets; \
+    | unsigned int n_buckets; \
+    | struct rcu_head rcu; \
+    | int node_ver; \
+    | u32 hash_seed; \
+    | bool keep_flows \
+  "
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "mediumpurple"
+]
+
+"flow_table" [
+  label = "<f0>flow_table \
+    | <f1> struct table_instance __rcu *ti; \
+    | <f2> struct table_instance __rcu *ufid_ti; \
+    | <f3> struct list_head mask_list; \
+    | <f4> unsigned long last_rehash;\
+    | <f5> unsigned int count; \
+    | <f6> unsigned int ufid_count; \
+  "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "maroon"
+  fillcolor = "mediumpurple"
+]
+
+"ovs_system":f2 -> "flow_table":f1 -> "table_instance":f0[
+id = 811, dir="both", color="mediumpurple"
+]
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 10: sw_flow_mask in flow_table
+
+"sw_flow_mask_1" [
+  label = "<f0>sw_flow_mask/ mask_ins_1\
+    | <f1> int ref_count \
+    | <f2> struct rcu_head rcu \
+    | <f3> struct list_head list \
+    | <f4> struct sw_flow_key_range range \
+    | <f5> struct sw_flow_key key \
+  "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "mediumpurple"
+]
+
+"sw_flow_mask_2" [
+  label = "<f0>sw_flow_mask/ mask_ins_2\
+    | <f1> int ref_count \
+    | <f2> struct rcu_head rcu \
+    | <f3> struct list_head list \
+    | <f4> struct sw_flow_key_range range \
+    | <f5> struct sw_flow_key key \
+  "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "mediumpurple"
+]
+
+"flow_table":f3->"sw_flow_mask_1":f3 -> "sw_flow_mask_2":f3[
+id = 1011, dir="both", color="mediumpurple"
+]
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 11: flow_table in datapath
+"ti_hlist_head" [
+  label = "<f0> hash bucket\
+    | <f1> struct hlist_head; \
+    | <f2> - \
+    | <f3> - \
+    | <f4> - \
+    | <f5> - \
+    | <f6> - \
+    | <f7> - \
+    | <f8> - \
+    | <f9> - \
+  "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "mediumpurple"
+]
+
+"table_instance":f1->"ti_hlist_head":f0[
+id = 1011, dir="both", color="orange"
+]
+#--------------------------------------------------------------------------------------------------------------------------------
+
+### Part 11: sw_flow
+
+"sw_flow_1" [
+  label = "<f0> sw_flow / instance 1 \
+    | <f1> struct rcu_head rcu; \
+    | <f2> struct ( 		\
+    | <f3> 	struct hlist_node node[2];
+    | <f4> u32 hash \
+    | <f5> ) flow_talble, \
+    | <f6>	ufid_table; \
+    | <f7> struct sw_flow_key key; \
+    | <f8> struct sw_flow_id id; \
+    | <f9> struct cpumask cpu_used_mask; \
+    | <f10> struct sw_flow_mask *mask; \
+    | <f11> struct sw_flow_actions __rcu *sf_acts; \
+    | <f12> struct sw_flow_stats __rcu *stats[]; \
+  "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "orange"
+]
+
+"sw_flow_2" [
+  label = "<f0> sw_flow / instance 2 \
+    | <f1> struct rcu_head rcu; \
+    | <f2> struct ( 		\
+    | <f3> 	struct hlist_node node[2];
+    | <f4> u32 hash \
+    | <f5> ) flow_talble, \
+    | <f6>	ufid_table; \
+    | <f7> struct sw_flow_key key; \
+    | <f8> struct sw_flow_id id; \
+    | <f9> struct cpumask cpu_used_mask; \
+    | <f10> struct sw_flow_mask *mask; \
+    | <f11> struct sw_flow_actions __rcu *sf_acts; \
+    | <f12> struct sw_flow_stats __rcu *stats[]; \
+  "
+  shape = "record"
+  gradientangle="90"
+  fillcolor = "orange"
+]
+"sw_flow_3" [
+  label = "<f0> sw_flow / instance 3 \
+    | <f1> struct rcu_head rcu; \
+    | <f2> struct ( 		\
+    | <f3> 	struct hlist_node node[2];
+    | <f4> u32 hash \
+    | <f5> ) flow_talble, \
+    | <f6>	ufid_table; \
+    | <f7> struct sw_flow_key key; \
+    | <f8> struct sw_flow_id id; \
+    | <f9> struct cpumask cpu_used_mask; \
+    | <f10> struct sw_flow_mask *mask; \
+    | <f11> struct sw_flow_actions __rcu *sf_acts; \
+    | <f12> struct sw_flow_stats __rcu *stats[]; \
+  "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "orange"
+]
+
+"sw_flow_4" [
+  label = "<f0> sw_flow / instance 4 \
+    | <f1> struct rcu_head rcu; \
+    | <f2> struct ( 		\
+    | <f3> 	struct hlist_node node[2];
+    | <f4> u32 hash \
+    | <f5> ) flow_talble, \
+    | <f6>	ufid_table; \
+    | <f7> struct sw_flow_key key; \
+    | <f8> struct sw_flow_id id; \
+    | <f9> struct cpumask cpu_used_mask; \
+    | <f10> struct sw_flow_mask *mask; \
+    | <f11> struct sw_flow_actions __rcu *sf_acts; \
+    | <f12> struct sw_flow_stats __rcu *stats[]; \
+  "
+  shape = "record"
+  gradientangle="90"
+  #fillcolor = "orange"
+]
+
+"ti_hlist_head":f8 -> "sw_flow_2":f3 [
+id = 1011, dir="both", color="orange"
+]
+
+"ti_hlist_head":f2 -> "sw_flow_1":f3 -> "sw_flow_3":f3 -> "sw_flow_4":f3[
+id = 1011, dir="both", color="orange"
+]
+
+"sw_flow_2":f10 -> "sw_flow_mask_1":f0[
+id = 1011, color="orange"
+]
+
+"sw_flow_3":f10 -> "sw_flow_mask_2":f0[
+id = 1011, color="orange"
+]
 
 
 }
