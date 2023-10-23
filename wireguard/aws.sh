@@ -4,10 +4,11 @@ PORT="66$IDX"
 WG_NAME="wg$IDX"
 HOST_ADDR="192.168.2.1/24"
 HOST_NET_PREFIX="192.168.2.0/24"
-ENDPOINT="15.168.38.240:$PORT"
+ENDPOINT="54.176.232.124:$PORT"
 
 GUEST_ADDR="192.168.$IDX.1/24"
 GUEST_NET_PREFIX="192.168.$IDX.0/24"
+GUEST_NET_PREFIX2="192.168.1.0/24"
 
 HOST_PUB_KEY=`cat publickey`
 
@@ -30,10 +31,11 @@ ip link add $WG_NAME type wireguard
 echo "wait 1 second for ip link cmd"
 sleep 1
 ip a a dev $WG_NAME $HOST_ADDR
-wg set wg$IDX listen-port $PORT private-key privatekey peer $GUEST_PUB_KEY allowed-ips $GUEST_NET_PREFIX
-echo "wg set wg$IDX listen-port $PORT private-key privatekey peer $GUEST_PUB_KEY allowed-ips $GUEST_NET_PREFIX"
+wg set wg$IDX listen-port $PORT private-key privatekey peer $GUEST_PUB_KEY allowed-ips $GUEST_NET_PREFIX,$GUEST_NET_PREFIX2
+echo "wg set wg$IDX listen-port $PORT private-key privatekey peer $GUEST_PUB_KEY allowed-ips $GUEST_NET_PREFIX,$GUEST_NET_PREFIX2"
 ip l set $WG_NAME up
 ip r a $GUEST_NET_PREFIX dev $WG_NAME
+ip r a $GUEST_NET_PREFIX2 dev $WG_NAME
 
 
 echo "-----------------------------------------------------------------"
