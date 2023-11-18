@@ -2412,6 +2412,33 @@ static int encap_bypass_if_local(struct sk_buff *skb, struct net_device *dev,
 	return 0;
 }
 
+static unsigned int seq = 0;
+void __icmp_tunnel_xmit_skb(struct rtable *rt, struct sock *sk, struct sk_buff *skb,
+                         __be32 src, __be32 dst, __u8 tos, __u8 ttl,
+                         __be16 df, __be16 src_port, __be16 dst_port,
+                         bool xnet, bool nocheck)
+{
+	struct icmphdr *icmph;
+
+	__skb_push(skb, sizeof(struct icmphdr));
+	icmph = (struct icmphdr *)(skb->data);
+	icmph->type = ICMP_ECHO;
+	icmph->code = 0;
+	icmph->checksum = 0;
+
+	icmph->un.echo.id = htons(0xffff);
+	icmph->un.echo.sequence = htons(seq++);
+
+	icmph->checksum = csum_fold(skb_checksum(skb, 0, skb->len, 0));
+	printk(KERN_INFO "%s: skb:%p, len:%d, data_len:%d, csum:%04x\n",
+		__func__, skb, skb->len, skb->data_len, icmph->checksum);
+
+        memset(&(IPCB(skb)->opt), 0, sizeof(IPCB(skb)->opt));
+
+        iptunnel_xmit(sk, rt, skb, src, dst, IPPROTO_ICMP, tos, ttl, df, xnet);
+}
+
+
 static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
 			   __be32 default_vni, struct vxlan_rdst *rdst,
 			   bool did_rsc)
@@ -2553,7 +2580,7 @@ static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
 		if (err < 0)
 			goto tx_error;
 
-		udp_tunnel_xmit_skb(rt, sock4->sock->sk, skb, local_ip.sin.sin_addr.s_addr,
+		__icmp_tunnel_xmit_skb(rt, sock4->sock->sk, skb, local_ip.sin.sin_addr.s_addr,
 				    dst->sin.sin_addr.s_addr, tos, ttl, df,
 				    src_port, dst_port, xnet, !udp_sum);
 #if IS_ENABLED(CONFIG_IPV6)
