@@ -40,7 +40,7 @@ int send_icmp(int sd, char *data, int len) {
 	hdr->type = ICMP_ECHO;
 	hdr->code = 0;
 	hdr->checksum = 0;
-	hdr->un.echo.id = 0xffff;
+	hdr->un.echo.id = htons(0xffff);
 	hdr->un.echo.sequence = htons(seq++);
 
 	hdr->checksum = checksum((unsigned short*)hdr, len);
@@ -86,8 +86,6 @@ int main(int argc, char *argv[]) {
 	}
 	len += 16;
 
-
-
 	send_icmp(sd, data, len);	
 	send_icmp(sd, data, len);	
 	send_icmp(sd, data, len);	
@@ -99,7 +97,7 @@ int main(int argc, char *argv[]) {
 
 	// 接收來自目標主機的 Echo Reply
 	ret = recv(sd, buf, sizeof(buf), 0);
-	if (ret < 1){
+	if (ret < 1) {
 		perror("recv");
 		exit(-1);
 	}
@@ -118,16 +116,12 @@ int main(int argc, char *argv[]) {
 			printf("The ICMP code is %d\n", icmphdrptr->code);
 			break;
 		case 8:
+		case 0:
 			printf("The host is alive!\n");
 			printf("The ICMP type is %d\n", icmphdrptr->type);
 			printf("The ICMP code is %d\n", icmphdrptr->code);
 			printf("The ICMP code is %d\n", htons(icmphdrptr->un.echo.id));
 			printf("The ICMP code is %d\n", htons(icmphdrptr->un.echo.sequence));
-			break;
-		case 0:
-			printf("The host is alive!\n");
-			printf("The ICMP type is %d\n", icmphdrptr->type);
-			printf("The ICMP code is %d\n", icmphdrptr->code);
 			break;
 		default:
 			printf("Another situations!\n");
